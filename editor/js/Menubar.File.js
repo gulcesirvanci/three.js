@@ -238,34 +238,23 @@ function MenubarFile(editor) {
 		var exporter = new GLTFExporter();
 
 		exporter.parse(editor.scene, function (result) {
-			saveString(JSON.stringify(result, null, 2), "input.gltf");
-		});
+			const fileInput = JSON.stringify(result, null, 2);
 
-		/*	const Http = new XMLHttpRequest();
-		const url = "http://0.0.0.0:9000";
-		Http.open("GET", url);
-		Http.send();
-
-		Http.onreadystatechange = (e) => {
-			console.log("hello");
-		};*/
-
-		const data = { name: "gulce" };
-
-		fetch("http://localhost:1234/hello", {
-			method: "POST", // or 'PUT'
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(data),
-		})
-			.then((response) => response.text())
-			.then((data) => {
-				console.log("Success:", data);
+			fetch("http://localhost:1234/hello", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: fileInput,
 			})
-			.catch((error) => {
-				console.error("Error:", error);
-			});
+				.then((response) => response.text())
+				.then((data) => {
+					console.log("Success:", data);
+				})
+				.catch((error) => {
+					console.error("Error:", error);
+				});
+		});
 
 		//script is must be here.
 	});
