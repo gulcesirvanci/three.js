@@ -1,10 +1,11 @@
-import buble from 'rollup-plugin-buble';
+import buble from "rollup-plugin-buble";
 
 function glconstants() {
-
 	var constants = {
-		POINTS: 0, ZERO: 0,
-		LINES: 1, ONE: 1,
+		POINTS: 0,
+		ZERO: 0,
+		LINES: 1,
+		ONE: 1,
 		LINE_LOOP: 2,
 		LINE_STRIP: 3,
 		TRIANGLES: 4,
@@ -143,135 +144,105 @@ function glconstants() {
 		UNPACK_PREMULTIPLY_ALPHA_WEBGL: 37441,
 		MAX_SAMPLES: 36183,
 		READ_FRAMEBUFFER: 36008,
-		DRAW_FRAMEBUFFER: 36009
+		DRAW_FRAMEBUFFER: 36009,
 	};
 
 	return {
-
-		transform( code ) {
-
-			code = code.replace( /_?gl\.([A-Z0-9_]+)/g, function ( match, p1 ) {
-
-				if ( p1 in constants ) return constants[ p1 ];
-				console.log( '* Unhandled GL Constant:', p1 );
+		transform(code) {
+			code = code.replace(/_?gl\.([A-Z0-9_]+)/g, function (match, p1) {
+				if (p1 in constants) return constants[p1];
+				console.log("* Unhandled GL Constant:", p1);
 				return match;
-
-			} );
+			});
 
 			return {
 				code: code,
-				map: { mappings: '' }
+				map: { mappings: "" },
 			};
-
-		}
-
+		},
 	};
-
 }
 
 function glsl() {
-
 	return {
+		transform(code, id) {
+			if (/\.glsl.js$/.test(id) === false) return;
 
-		transform( code, id ) {
-
-			if ( /\.glsl.js$/.test( id ) === false ) return;
-
-			code = code.replace( /\/\* glsl \*\/\`((.|\n)*)\`/, function ( match, p1 ) {
-
+			code = code.replace(/\/\* glsl \*\/\`((.|\n)*)\`/, function (match, p1) {
 				return JSON.stringify(
 					p1
 						.trim()
-						.replace( /\r/g, '' )
-						.replace( /[ \t]*\/\/.*\n/g, '' ) // remove //
-						.replace( /[ \t]*\/\*[\s\S]*?\*\//g, '' ) // remove /* */
-						.replace( /\n{2,}/g, '\n' ) // # \n+ to \n
+						.replace(/\r/g, "")
+						.replace(/[ \t]*\/\/.*\n/g, "") // remove //
+						.replace(/[ \t]*\/\*[\s\S]*?\*\//g, "") // remove /* */
+						.replace(/\n{2,}/g, "\n") // # \n+ to \n
 				);
-
-			} );
+			});
 
 			return {
 				code: code,
-				map: { mappings: '' }
+				map: { mappings: "" },
 			};
-
-		}
-
+		},
 	};
-
 }
 
 function bubleCleanup() {
-
 	const begin1 = /var (\w+) = \/\*@__PURE__*\*\/\(function \((\w+)\) {\n/;
 	const end1 = /if \( (\w+) \) (\w+)\.__proto__ = (\w+);\s+(\w+)\.prototype = Object\.create\( (\w+) && (\w+)\.prototype \);\s+(\w+)\.prototype\.constructor = (\w+);\s+return (\w+);\s+}\((\w+)\)\)/;
 
 	return {
+		transform(code) {
+			while (begin1.test(code)) {
+				code = code.replace(begin1, function () {
+					return "";
+				});
 
-		transform( code ) {
-
-			while ( begin1.test( code ) ) {
-
-				code = code.replace( begin1, function () {
-
-					return '';
-
-				} );
-
-				code = code.replace( end1, function ( match, p1, p2 ) {
-
+				code = code.replace(end1, function (match, p1, p2) {
 					return `${p2}.prototype = Object.create( ${p1}.prototype );\n\t${p2}.prototype.constructor = ${p2};\n`;
-
-				} );
-
+				});
 			}
 
 			return {
 				code: code,
-				map: { mappings: '' }
+				map: { mappings: "" },
 			};
-
-		}
-
+		},
 	};
-
 }
 
 export default [
 	{
-		input: 'src/Three.js',
+		input: "src/Three.js",
 		plugins: [
 			glconstants(),
 			glsl(),
-			buble( {
+			buble({
 				transforms: {
 					arrow: false,
-					classes: true
-				}
-			} ),
-			bubleCleanup()
+					classes: true,
+				},
+			}),
+			bubleCleanup(),
 		],
 		output: [
 			{
-				format: 'umd',
-				name: 'THREE',
-				file: 'build/three.js',
-				indent: '\t'
-			}
-		]
+				format: "umd",
+				name: "THREE",
+				file: "build/three.js",
+				indent: "\t",
+			},
+		],
 	},
 	{
-		input: 'src/Three.js',
-		plugins: [
-			glconstants(),
-			glsl()
-		],
+		input: "src/Three.js",
+		plugins: [glconstants(), glsl()],
 		output: [
 			{
-				format: 'esm',
-				file: 'build/three.module.js',
-				indent: '\t'
-			}
-		]
-	}
+				format: "esm",
+				file: "build/three.module.js",
+				indent: "\t",
+			},
+		],
+	},
 ];
