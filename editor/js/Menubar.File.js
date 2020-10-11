@@ -236,9 +236,10 @@ function MenubarFile(editor) {
 	option.setTextContent(strings.getKey("menubar/file/export/usdz"));
 	option.onClick(function () {
 		var exporter = new GLTFExporter();
-
 		exporter.parse(editor.scene, function (result) {
 			const fileInput = JSON.stringify(result, null, 2);
+
+			window.location.href = "http://localhost:1234/download";
 
 			fetch("http://localhost:1234/hello", {
 				method: "POST",
@@ -255,9 +256,8 @@ function MenubarFile(editor) {
 					console.error("Error:", error);
 				});
 		});
-
-		//script is must be here.
 	});
+
 	options.add(option);
 
 	// Export OBJ
