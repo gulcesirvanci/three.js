@@ -239,8 +239,6 @@ function MenubarFile(editor) {
 		exporter.parse(editor.scene, function (result) {
 			const fileInput = JSON.stringify(result, null, 2);
 
-			window.location.href = "http://localhost:1234/download";
-
 			fetch("http://localhost:1234/hello", {
 				method: "POST",
 				headers: {

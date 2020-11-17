@@ -6,7 +6,7 @@ function MenuTitle(editor) {
 	var container = new UIPanel();
 	container.setClass("menu");
 
-	var title = new UIText("3D MODEL VIEWER for DINER APP");
+	var title = new UIText("3D MODEL VIEWER for ARTLAB");
 	title.dom.style.verticalAlign = "middle";
 	title.setClass("title");
 	title.setOpacity(0.5);
